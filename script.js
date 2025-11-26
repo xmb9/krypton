@@ -26,7 +26,14 @@ function addTL(tab) {
     tab.addEventListener('click', (e) => {
         if (e.target.closest('.tab-cl')) {
             if (document.querySelectorAll('.tab').length > 1) {
-                tab.remove();
+                tab.style.animation = 'slideOut 0.2s ease-out';
+                setTimeout(() => {
+                    tab.remove();
+                    if (tab.classList.contains('active')) {
+                        const lastTab = document.querySelector('.tab:last-of-type');
+                        if (lastTab) lastTab.classList.add('active');
+                    }
+                },200);
                 if (tab.classList.contains('active')) {
                     const lastTab = document.querySelector('.tab:last-of-type');
                     if (lastTab) lastTab.classList.add('active');
@@ -42,7 +49,7 @@ function addTL(tab) {
 document.querySelectorAll('.tab').forEach(addTL);
 
 document.getElementById('refBtn').addEventListener('click', () => {
-    const icon = document.querySelector('#refBtn i');
+    const icon = document.querySelector('#refBtn svg');
     icon.style.transform = 'rotate(360deg)';
     icon.style.transition = 'transform 0.5s';
     setTimeout(() => {
