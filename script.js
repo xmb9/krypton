@@ -69,7 +69,7 @@ document.getElementById('bmBtn').addEventListener('click', () => {
         lucide.createIcons();
         const svg = btn.querySelector('svg');
         svg.style.fill = '#60a5fa';
-        svg.style.colour = '#60a5fa';
+        svg.style.color = '#60a5fa';
     } else {
         btn.innerHTML = '<i data-lucide="star"></i>';
         lucide.createIcons();
