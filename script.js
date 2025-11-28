@@ -40,6 +40,7 @@ function swTab(tabId) {
         wScreen.style.display = 'none';
         document.getElementById('urlInput').value= tabs[tabId].url || '';
         startURLM(tabs[tabId].iframe, tabId);
+        updNavBtns();
     } else {
         wScreen.style.display = 'block';
         document.getElementById('urlInput').value = '';
@@ -56,6 +57,7 @@ function showWscreen() {
     if (urlUpdInterval) {
         clearInterval(urlUpdInterval);
     }
+    updNavBtns();
 }
 
 function startURLM(iframe,tabId) {
@@ -66,6 +68,9 @@ function startURLM(iframe,tabId) {
             if (iframeSrc.includes('/scramjet/')) {
                 let encodedUrl = iframeSrc.split('/scramjet/')[1];
                 let decodedUrl = decodeURIComponent(encodedUrl);
+                if (tabs[tabId] && tabs[tabId].url !== decodedUrl) {
+                    tabs[tabId].isFirst = false;
+                }
                 document.getElementById('urlInput').value = decodedUrl;
                 tabs[tabId].url = decodedUrl;
                 try {
@@ -155,15 +160,40 @@ document.getElementById('bmBtn').addEventListener('click', () => {
     }
 });
 
+function updNavBtns() {
+    const activeTab = document.querySelector('.tab.active');
+    const backBtn = document.getElementById('backBtn');
+    const fwBtn = document.getElementById('fwBtn');
+    if (activeTab) {
+        const tabId = activeTab.dataset.tabId;
+        if (tabs[tabId] && tabs[tabId].iframe) {
+            backBtn.disabled = false;
+            fwBtn.disabled= true;
+        } else {
+            backBtn.disabled = true;
+            fwBtn.disabled = true;
+        }
+    } else {
+        backBtn.disabled = true;
+        fwBtn.disabled = true;
+    }
+}
+
 document.getElementById('backBtn').addEventListener('click', () => {
     const activeTab = document.querySelector('.tab.active');
     if (activeTab) {
         const tabId = activeTab.dataset.tabId;
         if (tabs[tabId] && tabs[tabId].iframe) {
-            try {
-                tabs[tabId].iframe.contentWindow.history.back();
-            } catch (e) {
-                console.log("can't go back:",e); // there is no escape ahh
+            if (tabs[tabId].isFirst) {
+                tabs[tabId].iframe.remove();
+                delete tabs[tabId];
+                showWscreen();
+            } else {
+                try {
+                    tabs[tabId].iframe.contentWindow.history.back();
+                } catch (e) {
+                    console.log("can't go back:", e);
+                }
             }
         }
     }
@@ -222,7 +252,8 @@ function loadWebsite(url) {
         tabs[tabId] = {
             url: fixedurl,
             title: url,
-            iframe: iframe
+            iframe: iframe,
+            isFirst: true
         };
         document.querySelectorAll('.bframe').forEach(frame => {
             if(frame !== iframe) {
@@ -241,6 +272,5 @@ function loadWebsite(url) {
         clearInterval(urlUpdInterval);
     }
     startURLM(tabs[tabId].iframe, tabId);
-    document.getElementById('backBtn').disabled = false;
-    document.getElementById('fwBtn').disabled = false;
+    updNavBtns();
 }
