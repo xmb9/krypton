@@ -155,6 +155,34 @@ document.getElementById('bmBtn').addEventListener('click', () => {
     }
 });
 
+document.getElementById('backBtn').addEventListener('click', () => {
+    const activeTab = document.querySelector('.tab.active');
+    if (activeTab) {
+        const tabId = activeTab.dataset.tabId;
+        if (tabs[tabId] && tabs[tabId].iframe) {
+            try {
+                tabs[tabId].iframe.contentWindow.history.back();
+            } catch (e) {
+                console.log("can't go back:",e); // there is no escape ahh
+            }
+        }
+    }
+});
+
+document.getElementById('fwBtn').addEventListener('click', () => {
+    const activeTab = document.querySelector('.tab.active');
+    if (activeTab) {
+        const tabId = activeTab.dataset.tabId;
+        if (tabs[tabId] && tabs[tabId].iframe) {
+            try {
+                tabs[tabId].iframe.contentWindow.history.forward();
+            } catch (e) {
+                console.log("can't go forward:",e);
+            }
+        }
+    }
+});
+
 // its proxin' time.
 /* PLEASE NOTE REVIEWERS: I did not make tinyjet! it was made by https://github.com/soap-phia/
 therefore, the backend is NOT made by me.
@@ -213,4 +241,6 @@ function loadWebsite(url) {
         clearInterval(urlUpdInterval);
     }
     startURLM(tabs[tabId].iframe, tabId);
+    document.getElementById('backBtn').disabled = false;
+    document.getElementById('fwBtn').disabled = false;
 }
