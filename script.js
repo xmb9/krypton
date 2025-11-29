@@ -109,6 +109,9 @@ renderBms();
 
 function formatUrl(url) {
     if (!url) return '';
+    if (url === 'krypton://new-tab') {
+        return `<span class="url-domain">${url}</span>`;
+    }
     try {
         const urlObj = new URL(url);
         return `<span class="url-proto">${urlObj.protocol}//</span><span class="url-domain">${urlObj.hostname}</span><span class="url-path">${urlObj.pathname}${urlObj.search}${urlObj.hash}</span>`;
@@ -155,12 +158,19 @@ document.getElementById('ntBtn').addEventListener('click', () => {
     tabBar.insertBefore(newTab,ntBtn);
     lucide.createIcons();
     addTL(newTab);
+    tabs[tabCount] = {
+        url:'krypton://new-tab',
+        title:'New Tab',
+        iframe:null,
+        isFirst:true,
+        cgf:false
+    };
     showWscreen();
 });
 
 function updLIC(url) {
     const urlIcon = document.querySelector('.url-icon');
-    if (!url) {
+    if (!url || url === 'krypton://new-tab') {
         urlIcon.innerHTML = '<i data-lucide="atom"></i>';
         urlIcon.style.color = '#60a5fa';
         lucide.createIcons();
@@ -198,21 +208,30 @@ function swTab(tabId) {
     if (tabs[tabId] && tabs[tabId].iframe) {
         tabs[tabId].iframe.style.display = 'block';
         wScreen.style.display = 'none';
-        document.getElementById('urlInput').value= tabs[tabId].url || '';
+        document.getElementById('urlInput').value = tabs[tabId].url || '';
         if (tabs[tabId].url) {
             urlDisplay.innerHTML = formatUrl(tabs[tabId].url);
             urlDisplay.style.display = 'block';
             urlInput.style.display = 'none';
             updLIC(tabs[tabId].url);
         }
-        startURLM(tabs[tabId].iframe, tabId);
+        startURLM(tabs[tabId].iframe,tabId);
+        updNavBtns();
+    } else if (tabs[tabId] && tabs[tabId].url === 'krypton://new-tab') {
+        wScreen.style.display = 'block';
+        document.getElementById('urlInput').value = 'krypton://new-tab';
+        urlDisplay.innerHTML = formatUrl('krypton://new-tab');
+        urlDisplay.style.display = 'block';
+        urlInput.style.display = 'none';
+        updLIC('krypton://new-tab');
         updNavBtns();
     } else {
         wScreen.style.display = 'block';
-        document.getElementById('urlInput').value = '';
-        urlDisplay.style.display = 'none';
-        urlInput.style.display = 'block';
-        updLIC(null);
+        document.getElementById('urlInput').value = 'krypton://new-tab';
+        urlDisplay.innerHTML = formatUrl('krypton://new-tab');
+        urlDisplay.style.display = 'block';
+        urlInput.style.display = 'none';
+        updLIC('krypton://new-tab');
         updNavBtns();
     }
     updBmBtn();
@@ -224,17 +243,19 @@ function showWscreen() {
         iframe.style.display = 'none';
     });
     wScreen.style.display = 'block';
-    document.getElementById('urlInput').value = '';
-    urlDisplay.style.display = 'none';
-    urlInput.style.display = 'block';
+    document.getElementById('urlInput').value = 'krypton://new-tab';
+    urlDisplay.innerHTML = formatUrl('krypton://new-tab');
+    urlDisplay.style.display = 'block';
+    urlInput.style.display = 'none';
     const activeTab = document.querySelector('.tab.active');
     if (activeTab) {
         const tabId = activeTab.dataset.tabId;
         if (tabs[tabId]) {
-            tabs[tabId].url = null;
+            tabs[tabId].url = 'krypton://new-tab';
         }
+        activeTab.querySelector('.tab-tl').textContent = 'New Tab';
     }
-    updLIC(null);
+    updLIC('krypton://new-tab');
     if (urlUpdInterval) {
         clearInterval(urlUpdInterval);
     }
@@ -263,7 +284,7 @@ function startURLM(iframe,tabId) {
                 if (document.activeElement !== urlInput) {
                     document.getElementById('urlInput').value = decodedUrl;
                     if (document.getElementById('urlInput').style.display === 'none') {
-                        urlDisplay.innerHTML = formatURL(decodedUrl);
+                        urlDisplay.innerHTML = formatUrl(decodedUrl);
                     }
                 }
                 updLIC(decodedUrl);
@@ -437,6 +458,10 @@ function search(input) {
 }
 
 function loadWebsite(url) {
+    if (url.toLowerCase() === 'krypton://new-tab' || url.toLowerCase() === 'krypton new tab') {
+        showWscreen();
+        return;
+    }
     const cArea = document.querySelector('.c-area');
     const wScreen = document.querySelector('.wscreen');
     let fixedurl = search(url);
@@ -490,4 +515,4 @@ function loadWebsite(url) {
     updBmBtn();
 }
 
-updLIC(null);
+updLIC('krypton://new-tab');
