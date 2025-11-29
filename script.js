@@ -8,6 +8,7 @@ const urlInput = document.getElementById('urlInput');
 const urlDisplay = document.createElement('div');
 urlDisplay.className = 'url-display';
 urlContainer.insertBefore(urlDisplay,urlInput.nextSibling);
+let isNav = false;
 
 function formatUrl(url) {
     if (!url) return '';
@@ -144,6 +145,8 @@ function showWscreen() {
 
 function startURLM(iframe,tabId) {
     const activeTab = document.querySelector(`.tab[data-tab-id="${tabId}"]`);
+    let lastUrl = tabs[tabId]?.url;
+    let urlChangeCount = 0;
     urlUpdInterval = setInterval(() => {
         try {
             let iframeSrc = iframe.contentWindow.location.href;
@@ -152,11 +155,16 @@ function startURLM(iframe,tabId) {
                 let decodedUrl = decodeURIComponent(encodedUrl);
                 if (tabs[tabId] && tabs[tabId].url !== decodedUrl) {
                     tabs[tabId].isFirst = false;
+                    if (lastUrl !== decodedUrl && !isNav) {
+                        tabs[tabId].cgf = false;
+                        updNavBtns();
+                    }
                 }
+                lastUrl = decodedUrl;
                 if (document.activeElement !== urlInput) {
                     document.getElementById('urlInput').value = decodedUrl;
                     if (document.getElementById('urlInput').style.display === 'none') {
-                        urlDisplay.innerHTML = formatUrl(decodedUrl);
+                        urlDisplay.innerHTML = formatURL(decodedUrl);
                     }
                 }
                 updLIC(decodedUrl);
@@ -173,8 +181,6 @@ function startURLM(iframe,tabId) {
                 }
             }
         } catch (e) {
-            // cors error most likely, expected
-            //regardless, try to upd based on stored url
             if (tabs[tabId] && tabs[tabId].url) {
                 updLIC(tabs[tabId].url);
             }
@@ -273,16 +279,20 @@ document.getElementById('backBtn').addEventListener('click', () => {
         const tabId = activeTab.dataset.tabId;
         if (tabs[tabId] && tabs[tabId].iframe) {
             if (tabs[tabId].isFirst) {
+                const iframe = tabs[tabId].iframe;
                 tabs[tabId].iframe.remove();
                 delete tabs[tabId];
                 showWscreen();
             } else {
                 try {
+                    isNav = true;
                     tabs[tabId].iframe.contentWindow.history.back();
                     tabs[tabId].cgf = true;
-                    document.getElementById('fwBtn').disabled = false;
+                    updNavBtns();
+                    setTimeout(() => {isNav=false;},600);
                 } catch (e) {
-                    console.log("can't go back:", e);
+                    console.log("can't go back:",e);
+                    isNav = false;
                 }
             }
         }
@@ -295,9 +305,16 @@ document.getElementById('fwBtn').addEventListener('click', () => {
         const tabId = activeTab.dataset.tabId;
         if (tabs[tabId] && tabs[tabId].iframe) {
             try {
+                isNav = true;
                 tabs[tabId].iframe.contentWindow.history.forward();
+                setTimeout(() => {
+                    isNav = false;
+                },600);
             } catch (e) {
-                console.log("can't go forward:",e);
+                console.log("can't go forward:", e);
+                isNav = false;
+                tabs[tabId].cgf = false;
+                updNavBtns();
             }
         }
     }
