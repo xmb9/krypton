@@ -3,6 +3,40 @@ lucide.createIcons();
 let tabCount = 1;
 let tabs = {};
 let urlUpdInterval = null;
+const urlContainer = document.querySelector('.url-intainer');
+const urlInput = document.getElementById('urlInput');
+const urlDisplay = document.createElement('div');
+urlDisplay.className = 'url-display';
+urlContainer.insertBefore(urlDisplay,urlInput.nextSibling);
+
+function formatUrl(url) {
+    if (!url) return '';
+    try {
+        const urlObj = new URL(url);
+        return `<span class="url-proto">${urlObj.protocol}//</span><span class="url-domain">${urlObj.hostname}</span><span class="url-path">${urlObj.pathname}${urlObj.search}${urlObj.hash}</span>`;
+    } catch (e) {
+        return `<span class="url-domain">${url}</span>`;
+    }
+}
+
+urlInput.addEventListener('blur', () => {
+    if (urlInput.value) {
+        urlDisplay.innerHTML = formatUrl(urlInput.value);
+        urlDisplay.style.display = 'block';
+        urlInput.style.display = 'none';
+    }
+});
+
+urlDisplay.addEventListener('click', () => {
+    urlDisplay.style.display = 'none';
+    urlInput.style.display = 'block';
+    urlInput.focus();
+});
+
+urlInput.addEventListener('focus', () => {
+    urlDisplay.style.display = 'none';
+    urlInput.style.display = 'block';
+});
 
 document.getElementById('ntBtn').addEventListener('click', () => {
     tabCount++;
@@ -39,6 +73,11 @@ function swTab(tabId) {
         tabs[tabId].iframe.style.display = 'block';
         wScreen.style.display = 'none';
         document.getElementById('urlInput').value= tabs[tabId].url || '';
+        if (tabs[tabId].url) {
+            urlDisplay.innerHTML = formatUrl(tabs[tabId].url);
+            urlDisplay.style.display = 'block';
+            urlInput.style.display = 'none';
+        }
         startURLM(tabs[tabId].iframe, tabId);
         updNavBtns();
     } else {
@@ -54,6 +93,8 @@ function showWscreen() {
     });
     wScreen.style.display = 'block';
     document.getElementById('urlInput').value = '';
+    urlDisplay.style.display = 'none';
+    urlInput.style.display = 'block';
     if (urlUpdInterval) {
         clearInterval(urlUpdInterval);
     }
@@ -72,6 +113,9 @@ function startURLM(iframe,tabId) {
                     tabs[tabId].isFirst = false;
                 }
                 document.getElementById('urlInput').value = decodedUrl;
+                if (document.getElementById('urlInput').style.display === 'none') {
+                    urlDisplay.innerHTML = formatUrl(decodedUrl);
+                }
                 tabs[tabId].url = decodedUrl;
                 try {
                     let urlObj = new URL(decodedUrl);
@@ -123,11 +167,7 @@ document.querySelectorAll('.tab').forEach(addTL);
 
 document.getElementById('refBtn').addEventListener('click', () => {
     const icon = document.querySelector('#refBtn svg');
-    icon.style.transform = 'rotate(360deg)';
-    icon.style.transition = 'transform 0.5s';
-    setTimeout(() => {
-        icon.style.transform = '';
-    },500);
+    
     const activeTab = document.querySelector('.tab.active');
     if (activeTab) {
         const tabId = activeTab.dataset.tabId;
@@ -262,6 +302,9 @@ function loadWebsite(url) {
         });
     }
     document.getElementById('urlInput').value = fixedurl;
+    urlDisplay.innerHTML = formatUrl(fixedurl);
+    urlDisplay.style.display = 'block';
+    urlInput.style.display = 'none';
     try {
         let urlObj = new URL(fixedurl);
         activeTab.querySelector('.tab-tl').textContent = urlObj.hostname;

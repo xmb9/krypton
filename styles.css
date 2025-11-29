@@ -40,14 +40,15 @@ body {
     background: #0a0a0a;
     border-right: 1px solid #1a1a1a;
     cursor: pointer;
-    transition: background 0.2s; /* i still have no idea why background is in red but it should still work anyway */
+    transition: all 0.3s cubic-bezier(0.4,0,0.2,1); /* i still have no idea why background is in red but it should still work anyway */
     min-width: 160px;
     max-width: 200px;
-    animation: slideIn 0.3s ease-out;
+    animation: slideIn 0.4s cubic-bezier(0.4,0,0.2,1);
 }
 
 .tab:hover {
     background: #121212;
+    transform: translateY(-1px);
 }
 
 .tab.active {
@@ -62,6 +63,18 @@ body {
     right: 0;
     height: 2px;
     background: #60a5fa;
+    animation: tabInd 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+
+@keyframes tabInd {
+    from {
+        transform: scaleX(0);
+        opacity: 0;
+    }
+    to {
+        transform: scaleX(1);
+        opacity: 1;
+    }
 }
 
 .tab-fav {
@@ -93,18 +106,21 @@ body {
     height: 14px;
     flex-shrink: 0;
     opacity: 0;
-    transition: opacity 0.2s;
+    transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
     display: flex;
     align-items: center;
     justify-content: center;
+    transform: scale(0.8);
 }
 
 .tab:hover .tab-cl {
     opacity: 0.6;
+    transform: scale(1);
 }
 
 .tab-cl:hover {
     opacity:1 !important;
+    transform: scale(1.1) !important;
 }
 
 .nt-btn {
@@ -114,7 +130,7 @@ body {
     padding: 11px 12px;
     background: #0a0a0a;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
     border-right: 1px solid #1a1a1a;
 }
 
@@ -123,7 +139,7 @@ body {
 }
 
 .nt-btn svg {
-    transition: transform 0.3s ease;
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
 }
 
 .nt-btn:hover svg {
@@ -149,18 +165,28 @@ body {
     border: none;
     border-radius: 6px;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
     color: #808080;
 }
 
 .nav-btn svg {
     width: 16px;
     height: 16px;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .nav-btn:hover {
     background: #1a1a1a;
     color: #a0a0a0;
+    transform: scale(1.05);
+}
+
+.nav-btn:hover svg {
+    transform: scale(1.1);
+}
+
+.nav-btn:active {
+    transform: scale(0.95);
 }
 
 .nav-btn:disabled {
@@ -171,6 +197,7 @@ body {
 .nav-btn:disabled:hover {
     background: transparent;
     color: #808080;
+    transform: none;
 }
 
 .nav-btn:focus {
@@ -191,7 +218,7 @@ body {
     border: 1px solid #1a1a1a;
     border-radius: 6px;
     padding: 0 10px;
-    transition: border-color 0.2s;
+    transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
     height: 32px;
 }
 
@@ -214,6 +241,7 @@ body {
     color: #fff;
     font-size: 13px;
     font-family: 'Inter';
+    transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .url-input::placeholder {
@@ -308,7 +336,7 @@ body {
     border-radius: 12px;
     padding: 24px;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     backdrop-filter: blur(10px);
     position: relative;
     overflow: hidden;
@@ -322,7 +350,7 @@ body {
     width: 100%;
     height: 100%;
     background: linear-gradient(90deg, transparent, rgba(96,165,250,0.1), transparent);
-    transition: left 0.5s;
+    transition: left 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .shortcut:hover::before {
@@ -342,23 +370,25 @@ body {
     margin: 0 auto 12px;
     color: #60a5fa;
     transition: all 0.3s;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     filter: drop-shadow(0 0 8px rgba(96,165,250,0.5));
 }
 
 .shortcut:hover .s-icon {
-    transform: scale(1.1);
-    filter: drop-shadow(0 0 16px rgba(96,165,250,0.8));
+    transform: scale(1.15) rotate(5deg);
+    filter: drop-shadow(0 0 20px rgba(96,165,250,0.9));
 }
 
 .s-title {
     font-size: 13px;
     font-weight: 500;
     color: #e0e0e0;
-    transition: color 0.3s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .shortcut:hover .s-title {
     color: #60a5fa;
+    transform: translateY(-2px);
 }
 
 svg {
@@ -374,22 +404,22 @@ svg {
 @keyframes slideIn {
     from {
         opacity: 0;
-        transform: translateX(-20px);
+        transform: translateX(-30px) scale(0.95);
     }
     to {
-        opacity:1;
-        transform: translateX(0);
+        opacity: 1;
+        transform: translateX(0) scale(1);
     }
 }
 
-@keyframes slideOut{
+@keyframes slideOut {
     from {
         opacity: 1;
-        transform: translateX(0);
+        transform: translateX(0) scale(1);
     }
     to {
         opacity: 0;
-        transform: translateX(-20px);
+        transform: translateX(-30px) scale(0.95);
     }
 }
 
@@ -398,4 +428,43 @@ svg {
     height: 100%;
     border: none;
     background: #fff;
+    animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.url-display {
+    flex: 1;
+    font-size: 13px;
+    font-family: 'Inter';
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: text;
+    display: none;
+    line-height: 32px;
+    transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.url-display .url-proto {
+    color: #808080;
+    transition: color 0.2s ease;
+}
+
+.url-display .url-domain {
+    color: #fff;
+    transition: color 0.2s ease;
+}
+
+.url-display .url-path {
+    color:#808080;
+    transition: color 0.2s ease;
+}   
