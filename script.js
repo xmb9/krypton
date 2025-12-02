@@ -64,7 +64,7 @@ function updBmBtn() {
     const tabId = activeTab.dataset.tabId;
     const currentUrl = tabs[tabId]?.url;
     const btn = document.getElementById('bmBtn');
-    const bookmarked = currentUrl && isBookmarked(currentUrl);
+    const bookmarked = currentUrl && currentUrl !== 'krypton://new-tab' && isBookmarked(currentUrl);
     btn.innerHTML = '<i data-lucide="star"></i>';
     lucide.createIcons();
     if (bookmarked) {
@@ -73,20 +73,20 @@ function updBmBtn() {
         svg.style.color = '#60a5fa';
     }
 }
-
+ 
 document.getElementById('bmBtn').addEventListener('click', () => {
     const activeTab = document.querySelector('.tab.active');
     if (!activeTab) return;
     const tabId = activeTab.dataset.tabId;
     const currentUrl = tabs[tabId]?.url;
-    if (!currentUrl) return;
+    if (!currentUrl || currentUrl === 'krypton://new-tab') return;
     const btn = document.getElementById('bmBtn');
     if (isBookmarked(currentUrl)) {
         const index = bookmarks.findIndex(b => b.url === currentUrl);
         if (index !== -1) {
             removeBm(index);
         }
-        btn.innerHTML = '<i data-lucide="star"></i>';
+        btn.innerHTML= '<i data-lucide="star"></i>';
         lucide.createIcons();
     } else {
         let title;
@@ -108,10 +108,7 @@ document.getElementById('bmBtn').addEventListener('click', () => {
 renderBms();
 
 function formatUrl(url) {
-    if (!url) return '';
-    if (url === 'krypton://new-tab') {
-        return `<span class="url-domain">${url}</span>`;
-    }
+    if (!url || url === 'krypton://new-tab') return '';
     try {
         const urlObj = new URL(url);
         return `<span class="url-proto">${urlObj.protocol}//</span><span class="url-domain">${urlObj.hostname}</span><span class="url-path">${urlObj.pathname}${urlObj.search}${urlObj.hash}</span>`;
@@ -121,7 +118,7 @@ function formatUrl(url) {
 }
 
 urlInput.addEventListener('blur', () => {
-    if (urlInput.value) {
+    if (urlInput.value && urlInput.value !== 'krypton://new-tab') {
         urlDisplay.innerHTML = formatUrl(urlInput.value);
         urlDisplay.style.display = 'block';
         urlInput.style.display = 'none';
@@ -209,28 +206,34 @@ function swTab(tabId) {
         tabs[tabId].iframe.style.display = 'block';
         wScreen.style.display = 'none';
         document.getElementById('urlInput').value = tabs[tabId].url || '';
-        if (tabs[tabId].url) {
+        if (tabs[tabId].url && tabs[tabId].url !== 'krypton://new-tab') {
             urlDisplay.innerHTML = formatUrl(tabs[tabId].url);
             urlDisplay.style.display = 'block';
             urlInput.style.display = 'none';
             updLIC(tabs[tabId].url);
+        } else {
+            urlDisplay.innerHTML = '';
+            urlDisplay.style.display = 'none';
+            urlInput.style.display = 'block';
+            urlInput.value = '';
+            updLIC('krypton://new-tab');
         }
         startURLM(tabs[tabId].iframe,tabId);
         updNavBtns();
     } else if (tabs[tabId] && tabs[tabId].url === 'krypton://new-tab') {
         wScreen.style.display = 'block';
-        document.getElementById('urlInput').value = 'krypton://new-tab';
-        urlDisplay.innerHTML = formatUrl('krypton://new-tab');
-        urlDisplay.style.display = 'block';
-        urlInput.style.display = 'none';
+        document.getElementById('urlInput').value = '';
+        urlDisplay.innerHTML = '';
+        urlDisplay.style.display = 'none';
+        urlInput.style.display = 'block';
         updLIC('krypton://new-tab');
         updNavBtns();
     } else {
         wScreen.style.display = 'block';
-        document.getElementById('urlInput').value = 'krypton://new-tab';
-        urlDisplay.innerHTML = formatUrl('krypton://new-tab');
-        urlDisplay.style.display = 'block';
-        urlInput.style.display = 'none';
+        document.getElementById('urlInput').value = '';
+        urlDisplay.innerHTML = '';
+        urlDisplay.style.display = 'none';
+        urlInput.style.display = 'block';
         updLIC('krypton://new-tab');
         updNavBtns();
     }
@@ -243,10 +246,10 @@ function showWscreen() {
         iframe.style.display = 'none';
     });
     wScreen.style.display = 'block';
-    document.getElementById('urlInput').value = 'krypton://new-tab';
-    urlDisplay.innerHTML = formatUrl('krypton://new-tab');
-    urlDisplay.style.display = 'block';
-    urlInput.style.display = 'none';
+    document.getElementById('urlInput').value = '';
+    urlDisplay.innerHTML = '';
+    urlDisplay.style.display = 'none';
+    urlInput.style.display = 'block';
     const activeTab = document.querySelector('.tab.active');
     if (activeTab) {
         const tabId = activeTab.dataset.tabId;
@@ -260,6 +263,7 @@ function showWscreen() {
         clearInterval(urlUpdInterval);
     }
     updNavBtns();
+    updBmBtn();
 }
 
 function startURLM(iframe,tabId) {
@@ -358,22 +362,6 @@ document.getElementById('urlInput').addEventListener('keypress', (e) => {
     }
 });
 
-let bookmarked = false;
-document.getElementById('bmBtn').addEventListener('click', () => {
-    const btn = document.getElementById('bmBtn');
-    bookmarked = !bookmarked;
-    if (bookmarked) {
-        btn.innerHTML = '<i data-lucide="star"></i>';
-        lucide.createIcons();
-        const svg = btn.querySelector('svg');
-        svg.style.fill = '#60a5fa';
-        svg.style.color = '#60a5fa';
-    } else {
-        btn.innerHTML = '<i data-lucide="star"></i>';
-        lucide.createIcons();
-    }
-});
-
 function updNavBtns() {
     const activeTab = document.querySelector('.tab.active');
     const backBtn = document.getElementById('backBtn');
@@ -458,7 +446,7 @@ function search(input) {
 }
 
 function loadWebsite(url) {
-    if (url.toLowerCase() === 'krypton://new-tab' || url.toLowerCase() === 'krypton new tab') {
+    if (!url || url.toLowerCase() === 'krypton://new-tab' || url.toLowerCase() === 'krypton new tab') {
         showWscreen();
         return;
     }
